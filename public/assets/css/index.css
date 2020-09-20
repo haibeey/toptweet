@@ -1,0 +1,33 @@
+.body{
+    background-color: #d966ff;
+}
+.search-form-div{
+    margin: auto;
+}
+.input-group,#search-input{
+    height: 60px;
+}
+.circular-radii{
+    border-radius: 50%;
+}
+
+#result{
+    width: 60%;
+    margin: auto;
+}
+.result-content{
+    background-color: white;
+    border: 1px solid black;
+}
+.lrc{
+    display: flex;
+    justify-content: space-between;
+}
+.lrc-items{
+    font-size: 30px;
+}
+
+#go-button:active{
+        color:red;
+        box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}

@@ -1,0 +1,10 @@
+# toml file for toptweet
+
+title = "TOML config for toptweet"
+
+[toptweet]
+port = ":8080"
+consumer_key = ""
+consumer_secret = ""
+access_token = ""
+access_secret = ""
