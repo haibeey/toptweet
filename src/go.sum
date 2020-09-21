@@ -163,6 +163,8 @@ github.com/haibeey/doclite v0.0.0-20200920183008-dc3070e62282 h1:LJ32phMOm4dq7/a
 github.com/haibeey/doclite v0.0.0-20200920183008-dc3070e62282/go.mod h1:4oEhs/gyF01t+Geb1eb2PYb+yPLmJb11iO5+3LJnBBY=
 github.com/haibeey/doclite v0.0.0-20200920213939-2765ba056e3c h1:SGOVyPb0pO5xteK/R2YC7S06RqYXnHfIZF3RSZHtS+w=
 github.com/haibeey/doclite v0.0.0-20200920213939-2765ba056e3c/go.mod h1:4oEhs/gyF01t+Geb1eb2PYb+yPLmJb11iO5+3LJnBBY=
+github.com/haibeey/doclite v0.0.0-20200921135336-059bd83fe948 h1:6nEcLH0n27oMEW0S5bnWyqNOgnh53EObUd1wwlgOKtg=
+github.com/haibeey/doclite v0.0.0-20200921135336-059bd83fe948/go.mod h1:4oEhs/gyF01t+Geb1eb2PYb+yPLmJb11iO5+3LJnBBY=
 github.com/hashicorp/consul/api v1.1.0/go.mod h1:VmuI/Lkw1nC05EYQWNKwWGbkg+FbDBtguAZLlVdkD9Q=
 github.com/hashicorp/consul/sdk v0.1.1/go.mod h1:VKf9jXwCTEY1QZP2MOLRhb5i/I/ssyNV1vwHyQBF0x8=
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=

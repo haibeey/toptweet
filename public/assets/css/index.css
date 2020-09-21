@@ -1,5 +1,5 @@
-.body{
-    background-color: #d966ff;
+.body,#progress{
+    background-color: #667dff;
 }
 .search-form-div{
     margin: auto;
@@ -11,8 +11,8 @@
     border-radius: 50%;
 }
 
-#result{
-    width: 60%;
+#result,#progress{
+    width: 80%;
     margin: auto;
 }
 .result-content{
@@ -31,3 +31,4 @@
         color:red;
         box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
 }
+

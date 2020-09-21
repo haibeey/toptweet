@@ -1,18 +1,18 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/gin-gonic/gin"
 	"github.com/haibeey/doclite"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -64,6 +64,8 @@ type Tweet struct {
 	FavoriteCount int
 	ReplyCount    int
 	QuoteCount    int
+	ID            string
+	User          string
 }
 
 //User holds a top tweets of the user
@@ -76,8 +78,7 @@ func ginRouter() *gin.Engine {
 	r := gin.Default()
 	r.Delims("{[{", "}]}")
 	r.LoadHTMLGlob("../public/templates/*.html")
-	r.Static("/assets", "../public/assets") 
-
+	r.Static("/assets", "../public/assets")
 
 	r.GET("/search", func(c *gin.Context) {
 		query := c.Request.URL.Query()
@@ -92,10 +93,15 @@ func ginRouter() *gin.Engine {
 		}
 
 		user := fetchFromLocal(handle[0])
-		if user == nil {
 
-			user = fetchFromTwitter(handle[0])
-			_,err := db.Base().Insert(user)
+		if user == nil {
+			user, err := fetchFromTwitter(handle[0])
+		
+			if err != nil {
+				c.JSON(400, gin.H{"error": fmt.Sprintf("%s", err), "tweets": User{}.Tweets})
+				return
+			}
+			_, err = db.Base().Insert(user)
 			db.Commit()
 			c.JSON(200, gin.H{"error": fmt.Sprintf("%s", err), "tweets": user.Tweets})
 			return
@@ -115,71 +121,67 @@ func ginRouter() *gin.Engine {
 func fetchFromLocal(handle string) *User {
 	usersCol := db.Base()
 	cursor := usersCol.Find(
-		&User{},
-		&User{},
+		&User{Handle: handle},
 	)
 
-	var (
-		res   interface{}
-	)
 	for {
 		cur := cursor.Next()
 		if cur == nil {
 			break
 		}
-		res = cur
-	}
-	if res == nil {
-		return nil
-	}
-	user := &User{Handle: handle, Tweets: []Tweet{}}
-	b, err := json.Marshal(res)
-	if err != nil {
-		return nil
-	}
-	err = json.Unmarshal(b, user)
 
-	if err != nil {
-		return nil
+		user := &User{}
+		b, err := json.Marshal(cur)
+		if err != nil {
+			continue
+		}
+		err = json.Unmarshal(b, user)
+
+		if err != nil {
+			continue
+		}
+		if user.Handle == handle {
+			return user
+		}
 	}
-	return user
+
+	return nil
 }
 
-func fetchFromTwitter(handle string) *User {
+func fetchFromTwitter(handle string) (*User, error) {
 	userTimelineParams := &twitter.UserTimelineParams{
-		ScreenName: handle, Count: 200,IncludeRetweets:twitter.Bool(false),
+		ScreenName: handle, Count: 200, IncludeRetweets: twitter.Bool(false),
 	}
 
 	tweets, _, err := getClient(
 		&cred{
-			ConsumerKey:runtimeViper.GetString("toptweet.consumer_key"),
-			ConsumerSecret:runtimeViper.GetString("toptweet.consumer_secret"),
+			ConsumerKey:    runtimeViper.GetString("toptweet.consumer_key"),
+			ConsumerSecret: runtimeViper.GetString("toptweet.consumer_secret"),
 		},
 	).Timelines.UserTimeline(userTimelineParams)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	id:=tweets[len(tweets)-1].ID
-	for{
-		userTimelineParams.MaxID  = id
+	id := tweets[len(tweets)-1].ID
+	for {
+		userTimelineParams.MaxID = id
 		twits, _, err := getClient(
 			&cred{
-				ConsumerKey:runtimeViper.GetString("toptweet.consumer_key"),
-				ConsumerSecret:runtimeViper.GetString("toptweet.consumer_secret"),
+				ConsumerKey:    runtimeViper.GetString("toptweet.consumer_key"),
+				ConsumerSecret: runtimeViper.GetString("toptweet.consumer_secret"),
 			},
 		).Timelines.UserTimeline(userTimelineParams)
 		if err != nil {
 			continue
 		}
-		tweets = append(tweets,twits...)
+		tweets = append(tweets, twits...)
 
-		if tweets[len(tweets)-1].ID==id{
+		if tweets[len(tweets)-1].ID == id {
 			break
 		}
 		id = tweets[len(tweets)-1].ID
 
-	
 	}
 	user := &User{Handle: handle, Tweets: []Tweet{}}
 	values := []int{}
@@ -193,23 +195,25 @@ func fetchFromTwitter(handle string) *User {
 			FavoriteCount: tweet.FavoriteCount,
 			ReplyCount:    tweet.ReplyCount,
 			QuoteCount:    tweet.QuoteCount,
+			ID:            tweet.IDStr,
+			User:          tweet.User.ScreenName,
 		}
 		values, part = isPartOfTop(
 			tweet.RetweetCount+tweet.FavoriteCount+tweet.ReplyCount+tweet.QuoteCount,
-			values,user,t,
+			values, user, t,
 		)
-	
+
 		if part {
-			if len(user.Tweets)<numberOfTweetToDisplay{
+			if len(user.Tweets) < numberOfTweetToDisplay {
 				user.Tweets = append(user.Tweets, t)
 			}
 		}
 	}
 
-	return user
+	return user, nil
 }
 
-func isPartOfTop(value int, values []int,user *User,t Tweet) ([]int, bool) {
+func isPartOfTop(value int, values []int, user *User, t Tweet) ([]int, bool) {
 
 	if len(values) < numberOfTweetToDisplay {
 		values = append(values, value)
