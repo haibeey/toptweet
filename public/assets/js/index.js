@@ -19,6 +19,11 @@ var progressBar = `
     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
 </div>
 </div>`
+
+var alertStr = `<div class="alert alert-danger" role="alert">
+no-input
+</div>`
+
 function buildUrl(handle){
     return window.location.href+"search/?q=".concat(handle)
 }
@@ -48,8 +53,16 @@ function fetchTopTweets() {
     if (inputElem.value){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-                    processJson(this.responseText,inputElem.value)
+            if (this.readyState == 4){
+                if (this.status == 200) {
+                            processJson(this.responseText,inputElem.value)
+                }else if(this.status == 400){
+                    document.getElementById("p-boss").style.visibility = "hidden"
+                    let divResult = document.getElementById("result")
+                    let divInner = document.createElement("div")
+                    divInner.innerHTML = alertStr.replace('no-input',JSON.parse(this.responseText).error)
+                    divResult.appendChild(divInner)
+                }
             }
         }
         xhttp.open("GET", buildUrl(inputElem.value), true);

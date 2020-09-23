@@ -11,6 +11,7 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 	"net/http"
 	"os"
+	"errors"
 	"os/signal"
 	"syscall"
 )
@@ -124,27 +125,25 @@ func fetchFromLocal(handle string) *User {
 		&User{Handle: handle},
 	)
 
-	for {
-		cur := cursor.Next()
-		if cur == nil {
-			break
-		}
-
-		user := &User{}
-		b, err := json.Marshal(cur)
-		if err != nil {
-			continue
-		}
-		err = json.Unmarshal(b, user)
-
-		if err != nil {
-			continue
-		}
-		if user.Handle == handle {
-			return user
-		}
+	cur := cursor.Next()
+	if cur == nil {
+		return nil
 	}
 
+	user := &User{}
+	b, err := json.Marshal(cur)
+	if err != nil {
+		return nil
+	}
+	err = json.Unmarshal(b, user)
+
+	if err != nil {
+		return nil
+	}
+	if user.Handle == handle {
+		return user
+	}
+	
 	return nil
 }
 
@@ -163,26 +162,31 @@ func fetchFromTwitter(handle string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := tweets[len(tweets)-1].ID
-	for {
-		userTimelineParams.MaxID = id
-		twits, _, err := getClient(
-			&cred{
-				ConsumerKey:    runtimeViper.GetString("toptweet.consumer_key"),
-				ConsumerSecret: runtimeViper.GetString("toptweet.consumer_secret"),
-			},
-		).Timelines.UserTimeline(userTimelineParams)
-		if err != nil {
-			continue
+	if len(tweets)>0{
+		id := tweets[len(tweets)-1].ID
+		for {
+			userTimelineParams.MaxID = id
+			twits, _, err := getClient(
+				&cred{
+					ConsumerKey:    runtimeViper.GetString("toptweet.consumer_key"),
+					ConsumerSecret: runtimeViper.GetString("toptweet.consumer_secret"),
+				},
+			).Timelines.UserTimeline(userTimelineParams)
+			if err != nil {
+				continue
+			}
+			tweets = append(tweets, twits...)
+	
+			if tweets[len(tweets)-1].ID == id {
+				break
+			}
+			id = tweets[len(tweets)-1].ID
+	
 		}
-		tweets = append(tweets, twits...)
-
-		if tweets[len(tweets)-1].ID == id {
-			break
-		}
-		id = tweets[len(tweets)-1].ID
-
+	}else{
+		return nil,errors.New("No user found")
 	}
+
 	user := &User{Handle: handle, Tweets: []Tweet{}}
 	values := []int{}
 	part := false
