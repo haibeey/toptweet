@@ -1,0 +1,85 @@
+.body,#progress{
+    background-color: #667dff;
+}
+.search-form-div{
+    margin: auto;
+}
+.input-group,#search-input{
+    height: 60px;
+}
+.circular-radii{
+    border-radius: 50%;
+}
+
+#result,#progress{
+    width: 80%;
+    margin: auto;
+}
+.result-content{
+    background-color: white;
+    border: 1px solid black;
+}
+.lrc{
+    display: flex;
+    justify-content: space-between;
+}
+.lrc-items{
+    font-size: 30px;
+}
+
+#go-button:active{
+        color:red;
+        box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
+.fade-in {
+    animation: fadeIn ease 10s;
+    -webkit-animation: fadeIn ease 10s;
+    -moz-animation: fadeIn ease 10s;
+    -o-animation: fadeIn ease 10s;
+    -ms-animation: fadeIn ease 10s;
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity:0.3;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+  @-moz-keyframes fadeIn {
+    0% {
+      opacity:0.3;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+  @-webkit-keyframes fadeIn {
+    0% {
+      opacity:0.3;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+  @-o-keyframes fadeIn {
+    0% {
+      opacity:0.3;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+  @-ms-keyframes fadeIn {
+    0% {
+      opacity:0.3;
+    }
+    100% {
+      opacity:1;
+  }
+}

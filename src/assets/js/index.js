@@ -1,6 +1,6 @@
 
 var conntentString = `
-<div class="jumbotron result-content">
+<div class="jumbotron result-content fade-in">
     <div class="row">
         <h3 id="username" class="col-sm-9">user-name</h3>
         <a class="col-sm-3" href="link-to-tweet"><i class="fa fa-link">Link to Tweet</i></a>

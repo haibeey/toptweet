@@ -78,8 +78,8 @@ type User struct {
 func ginRouter() *gin.Engine {
 	r := gin.Default()
 	r.Delims("{[{", "}]}")
-	r.LoadHTMLGlob("../public/templates/*.html")
-	r.Static("/assets", "../public/assets")
+	r.LoadHTMLGlob("templates/*.html")
+	r.Static("/assets", "assets")
 
 	r.GET("/search", func(c *gin.Context) {
 		query := c.Request.URL.Query()
@@ -252,5 +252,5 @@ func handleInterupt() {
 
 func main() {
 	handleInterupt()
-	ginRouter().Run(runtimeViper.GetString("toptweet.port"))
+	ginRouter().Run(":"+os.Getenv("PORT"))
 }
